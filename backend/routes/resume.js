@@ -32,7 +32,7 @@ router.post(
       const pdfData = await pdfParse(dataBuffer);
 
       const resume = new Resume({
-        userId: req.user.id,   // ✅ FIXED
+        userId: req.user,   // ✅ FIXED
         fileName: req.file.originalname,
         filePath,
         extractedText: pdfData.text
