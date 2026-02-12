@@ -41,9 +41,9 @@ router.post(
       await resume.save();
 
       res.json({
-        message: "Resume uploaded successfully",
-        textPreview: pdfData.text.substring(0, 300)
-      });
+  message: "Resume uploaded and parsed successfully",
+  fullText: pdfData.text
+});
 
     } catch (error) {
       console.error("UPLOAD ERROR:", error);
