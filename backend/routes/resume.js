@@ -20,7 +20,7 @@ router.post(
   async (req, res) => {
     try {
 
-      // ✅ Safety check
+      // ✅ Check if file exists
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
       }
@@ -32,7 +32,7 @@ router.post(
       const pdfData = await pdfParse(dataBuffer);
 
       const resume = new Resume({
-        userId: req.user,
+        userId: req.user.id,   // ✅ FIXED
         fileName: req.file.originalname,
         filePath,
         extractedText: pdfData.text
@@ -55,6 +55,7 @@ router.post(
     }
   }
 );
+
 
 /* ======================
    AI MATCHING + SAVE
