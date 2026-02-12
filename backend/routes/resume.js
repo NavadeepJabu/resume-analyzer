@@ -19,7 +19,14 @@ router.post(
   upload.single("resume"),
   async (req, res) => {
     try {
+
+      // ✅ Safety check
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
       const filePath = req.file.path;
+
       const dataBuffer = fs.readFileSync(filePath);
 
       const pdfData = await pdfParse(dataBuffer);
@@ -34,13 +41,17 @@ router.post(
       await resume.save();
 
       res.json({
-        message: "Resume uploaded and parsed successfully",
+        message: "Resume uploaded successfully",
         textPreview: pdfData.text.substring(0, 300)
       });
 
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Resume upload failed" });
+      console.error("UPLOAD ERROR:", error);
+
+      res.status(500).json({
+        message: "Resume upload failed",
+        error: error.message
+      });
     }
   }
 );
