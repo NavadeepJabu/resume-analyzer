@@ -1,77 +1,49 @@
 const extractSkills = require("../utils/skillExtractor");
 
-// Escape regex symbols
-function escapeRegex(text) {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
+function analyzeResume(resumeText, jobDesc) {
 
-function analyzeResume(resumeText = "", jobDescription = "") {
+  const resumeSkills = extractSkills(resumeText || "");
+  const jobSkills = extractSkills(jobDesc || "");
 
-  if (!resumeText || !jobDescription) {
-    return {
-      resumeSkills: [],
-      jobSkills: [],
-      matchedSkills: [],
-      missingSkills: [],
-      matchScore: 0,
-      suggestions: ["Provide resume and job description"]
-    };
-  }
+  const matched = resumeSkills.filter(skill =>
+    jobSkills.includes(skill)
+  );
 
-  const resume = resumeText.toLowerCase();
-  const job = jobDescription.toLowerCase();
+  const missing = jobSkills.filter(skill =>
+    !resumeSkills.includes(skill)
+  );
 
-  const resumeSkills = extractSkills(resume);
-  const jobSkills = extractSkills(job);
-
-  let matchedSkills = [];
-  let missingSkills = [];
-
-  jobSkills.forEach((skill) => {
-
-    // ✅ Escape special chars (fixes c++, c#, node.js etc.)
-    const safeSkill = escapeRegex(skill);
-
-    const regex = new RegExp(`\\b${safeSkill}\\b`, "i");
-
-    if (regex.test(resume)) {
-      matchedSkills.push(skill);
-    } else {
-      missingSkills.push(skill);
-    }
-
-  });
-
-  const matchScore = jobSkills.length === 0
+  const score = jobSkills.length === 0
     ? 0
-    : Math.round((matchedSkills.length / jobSkills.length) * 100);
+    : Math.round((matched.length / jobSkills.length) * 100);
 
+  // Suggestions
   let suggestions = [];
 
-  if (missingSkills.length > 0) {
+  if (missing.length > 0) {
     suggestions.push(
-      `Consider learning: ${missingSkills.join(", ")}`
+      `Consider learning: ${missing.join(", ")}`
     );
   }
 
-  if (matchScore < 60) {
+  if (score < 60) {
     suggestions.push("Improve technical projects");
   }
 
-  if (matchScore >= 80) {
-    suggestions.push("Great profile! Apply now.");
+  if (score < 80) {
+    suggestions.push("Add certifications");
   }
 
-  if (suggestions.length === 0) {
-    suggestions.push("Good profile. Keep improving.");
+  if (score >= 80) {
+    suggestions.push("Great profile! Apply now.");
   }
 
   return {
     resumeSkills,
     jobSkills,
-    matchedSkills,
-    missingSkills,
-    matchScore,
+    matchedSkills: matched,
+    missingSkills: missing,
+    matchScore: score,
     suggestions
   };
 }
