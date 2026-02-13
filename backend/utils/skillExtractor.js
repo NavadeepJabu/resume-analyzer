@@ -1,34 +1,46 @@
-const skills = [
+// utils/skillExtractor.js
+
+const SKILLS = [
   "java",
   "javascript",
-  "node",
+  "python",
+  "c",
+  "c++",
   "react",
+  "node",
   "mongodb",
   "express",
-  "python",
-  "aws",
-  "git",
-  "docker",
   "html",
   "css",
-  "sql"
+  "sql",
+  "git",
+  "docker",
+  "aws",
+  "machine learning",
+  "ai",
+  "data science"
 ];
 
-function extractSkills(text = "") {
+function extractSkills(text) {
 
-  let found = [];
+  if (!text) return [];
 
-  skills.forEach((skill) => {
+  // Convert to lowercase
+  text = text.toLowerCase();
 
-    const regex = new RegExp(`\\b${skill}\\b`, "i");
+  const foundSkills = [];
 
-    if (regex.test(text)) {
-      found.push(skill);
+  for (let skill of SKILLS) {
+
+    // Create word-boundary regex
+    const pattern = new RegExp(`\\b${skill.replace("+", "\\+")}\\b`, "i");
+
+    if (pattern.test(text)) {
+      foundSkills.push(skill);
     }
+  }
 
-  });
-
-  return found;
+  return foundSkills;
 }
 
 module.exports = extractSkills;
