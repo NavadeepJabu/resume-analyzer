@@ -1,8 +1,12 @@
 const extractSkills = require("../utils/skillExtractor");
 
+// Escape regex symbols
+function escapeRegex(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function analyzeResume(resumeText = "", jobDescription = "") {
 
-  // Safety check
   if (!resumeText || !jobDescription) {
     return {
       resumeSkills: [],
@@ -14,21 +18,21 @@ function analyzeResume(resumeText = "", jobDescription = "") {
     };
   }
 
-  // Convert to lowercase
   const resume = resumeText.toLowerCase();
   const job = jobDescription.toLowerCase();
 
-  // Extract skills
   const resumeSkills = extractSkills(resume);
   const jobSkills = extractSkills(job);
 
   let matchedSkills = [];
   let missingSkills = [];
 
-  // ✅ MAIN FIX: Word boundary regex
   jobSkills.forEach((skill) => {
 
-    const regex = new RegExp(`\\b${skill}\\b`, "i");
+    // ✅ Escape special chars (fixes c++, c#, node.js etc.)
+    const safeSkill = escapeRegex(skill);
+
+    const regex = new RegExp(`\\b${safeSkill}\\b`, "i");
 
     if (regex.test(resume)) {
       matchedSkills.push(skill);
@@ -38,15 +42,17 @@ function analyzeResume(resumeText = "", jobDescription = "") {
 
   });
 
-  // Score
   const matchScore = jobSkills.length === 0
     ? 0
     : Math.round((matchedSkills.length / jobSkills.length) * 100);
 
-  // Suggestions
-  let suggestions = missingSkills.map(
-    (s) => `Consider learning: ${s}`
-  );
+  let suggestions = [];
+
+  if (missingSkills.length > 0) {
+    suggestions.push(
+      `Consider learning: ${missingSkills.join(", ")}`
+    );
+  }
 
   if (matchScore < 60) {
     suggestions.push("Improve technical projects");
