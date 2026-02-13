@@ -1,31 +1,34 @@
 const skills = [
+  "java",
   "javascript",
   "node",
-  "express",
-  "mongodb",
   "react",
+  "mongodb",
+  "express",
   "python",
-  "java",
-  "c++",
-  "machine learning",
-  "deep learning",
-  "ai",
-  "sql",
   "aws",
-  "docker",
   "git",
+  "docker",
   "html",
-  "css"
+  "css",
+  "sql"
 ];
 
-function extractSkills(text) {
-  if (!text) return [];
+function extractSkills(text = "") {
 
-  const lowerText = text.toLowerCase();
+  let found = [];
 
-  return skills.filter(skill =>
-    lowerText.includes(skill)
-  );
+  skills.forEach((skill) => {
+
+    const regex = new RegExp(`\\b${skill}\\b`, "i");
+
+    if (regex.test(text)) {
+      found.push(skill);
+    }
+
+  });
+
+  return found;
 }
 
 module.exports = extractSkills;
